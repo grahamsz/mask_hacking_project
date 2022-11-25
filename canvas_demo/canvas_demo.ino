@@ -19,7 +19,15 @@ void loop() {
   sendCanvasToMask();
 }
 
-
+void setBrightness(uint8_t brightness)
+{
+  
+  uint8_t buffer[3];  // init a 3 byte packet
+  buffer[0] = 3;      // maybe our preamble is actually the packet length
+  buffer[1] = brightness;
+  buffer[2] = buffer[0] +buffer[1];
+  Serial2.write(buffer, 3);  // offload the fiddly bit to the ESP32 UART
+}
 void sendCanvasToMask() 
 {
 
