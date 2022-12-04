@@ -5,17 +5,32 @@ GFXcanvas1 maskCanvas = GFXcanvas1(48, 12); // make a standard Adafruit 1-bit ca
 
 void setup() {
   Serial.begin(115200);  // computer serial debugging interface
-  Serial2.begin(38400);  // mask interface uses 38.4kbit/s serial
+  Serial0.begin(38400);  // mask interface uses 38.4kbit/s serial
 }
 
-void loop() {
-  usleep(50000);  // wait 50ms
 
-  maskCanvas.fillScreen(1);                 // color 1 is on
-  maskCanvas.drawLine(0, 0, 11, 11, 0);     // color 0 is off
-  maskCanvas.drawLine(12, 11, 23, 0, 0);
-  maskCanvas.drawLine(24, 0, 35, 11, 0);
-  maskCanvas.drawLine(36, 11, 47, 0, 0);
+int y=0;
+void loop() {
+  usleep(300000);  // wait 50ms
+
+  y=(y+1)%11;
+
+  maskCanvas.fillScreen(0);                 // color 1 is off
+
+
+  
+
+    for (int i=-10;i<10;i++)
+    {
+      int offset = cos(i/7.0)*8;
+      offset=offset*((double)y-5)/10;
+      maskCanvas.drawPixel(24+i,6-offset,1);
+      maskCanvas.drawPixel(24+i,4-offset,1);
+      maskCanvas.drawPixel(24+i,5-offset,1);
+    }
+
+
+
   sendCanvasToMask();
 }
 
@@ -26,7 +41,7 @@ void setBrightness(uint8_t brightness)
   buffer[0] = 3;      // maybe our preamble is actually the packet length
   buffer[1] = brightness;
   buffer[2] = buffer[0] +buffer[1];
-  Serial2.write(buffer, 3);  // offload the fiddly bit to the ESP32 UART
+  Serial0.write(buffer, 3);  // offload the fiddly bit to the ESP32 UART
 }
 void sendCanvasToMask() 
 {
@@ -75,5 +90,5 @@ void sendCanvasToMask()
     buffer[73] += buffer[i];
   }
 
-  Serial2.write(buffer, 74);  // offload the fiddly bit to the ESP32 UART
+  Serial0.write(buffer, 74);  // offload the fiddly bit to the ESP32 UART
 }
